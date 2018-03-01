@@ -102,5 +102,5 @@ if __name__ == '__main__':
             break
 
 
-for car in vehicles:
-    print (len(car.rides), *[ride.id for ride in car.rides])
+    for car in vehicles:
+        print (len(car.rides), *[ride.id for ride in car.rides])
