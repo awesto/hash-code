@@ -4,24 +4,24 @@ from collections import namedtuple
 Pos = namedtuple('Pos', ['x', 'y'])
 Ride = namedtuple('Ride', ['id', 'start', 'finish', 'earliest', 'latest', 'distance'])
 
+field_size = Pos(None, None)
+vehicles = []
+max_time = None
+ride_bonus = None
+
 class Car(object):
     def __init__(self, id):
         self.id = id
         self.current = Pos(0, 0)
         self.occupied_until = 0
+        self.rides = []
 
     def drive(self, ride, current_time):
         dist_car_start = compute_distance(self.current, ride.start)
         dist_start_dest = compute_distance(ride.start, ride.finish)
         self.occupied_until = current_time + dist_car_start + dist_start_dest
         self.current = ride.finish
-
-
-field_size = Pos(None, None)
-vehicles = []
-max_time = None
-ride_bonus = None
-
+        self.rides.append(ride)
 
 def parse_input_file(input_file):
     global field_size, vehicles, max_time, ride_bonus
@@ -76,25 +76,30 @@ from pprint import pprint
 rides = parse_input_file("Dataset/a_example.in")
 pprint(rides)
 
-def greedy_select_ride(current_time):
+def greedy_select_ride(car: Car, current_time: int) -> Ride:
     print('=== {} ==='.format(current_time))
     combinations = []
     for ride in rides:
-        for car in vehicles:
-            if car.occupied_until < current_time:
-                continue
-            reward = compute_reward(car, ride, current_time)
-            if reward == 0:
-                continue
-            combinations.append((ride, car, reward))
-            print('r{} c{}: {}'.format(ride.id, car.id, combinations[-1][2]))
+        reward = compute_reward(car, ride, current_time)
+        if reward == 0:
+            continue
+        combinations.append((ride, car, reward))
+        print('r{} c{}: {}'.format(ride.id, car.id, combinations[-1][2]))
     combinations = sorted(combinations, key=lambda t: t[2], reverse=True)
     print(combinations)
-    return combinations[0]
+    return combinations[0][0]
 
 
 for current_time in range(max_time):
-    ride, car, _ = greedy_select_ride(current_time)
-    car.drive(ride, current_time)
-
+    for car in vehicles:
+        if car.occupied_until > current_time:
+            continue
+        try:
+            ride = greedy_select_ride(car, current_time)
+        except IndexError:
+            continue
+        car.drive(ride, current_time)
+        rides.remove(ride)
+    if not rides:
+        break
 
