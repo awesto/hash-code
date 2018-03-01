@@ -5,30 +5,31 @@ Pos = namedtuple('Pos', ['x', 'y'])
 Ride = namedtuple('Ride', ['id', 'start', 'finish', 'earliest', 'latest', 'distance'])
 
 class Car(object):
-    def __init__(self):
-        current = Pos(0, 0)
-        destination = None
-        occupied = False
+    def __init__(self, id):
+        self.id = id
+        self.current = Pos(0, 0)
+        self.destination = None
+        self.occupied = False
 
 
 
 field_size = Pos(None, None)
 vehicles = []
-time_left = None
+max_time = None
 ride_bonus = None
 
 
 def parse_input_file(input_file):
-    global field_size, vehicles, time_left, ride_bonus
+    global field_size, vehicles, max_time, ride_bonus
 
     ride_index = 0
     rides = []
     with open(input_file) as f:
         setup = f.readline().split(" ")
         field_size = Pos(int(setup[0]), int(setup[1]))
-        vehicles = [Car()] * int(setup[3])
+        vehicles = [Car(i) for i in range(int(setup[3]))]
         ride_bonus = int(setup[4])
-        time_left = int(setup[5])
+        max_time = int(setup[5])
 
         for line in f:
             e = line.split(" ")
@@ -51,12 +52,14 @@ def compute_reward (car, ride, current_time):
     dist_start_dest = compute_distance (ride.start, ride.finish)
 
     full_distance = dist_car_start + dist_start_dest
-    if full_distance > (current_time-ride.latest):
+    if full_distance > ride.latest - current_time:
+        # this ride can not be fulfilled in time => no reward
         return 0
 
     reward = dist_start_dest
 
     if current_time + dist_car_start == ride.earliest:
+        # bonus if we pick up at exact time
         reward += 2
 
     return reward
@@ -65,3 +68,8 @@ from pprint import pprint
 rides = parse_input_file("Dataset/a_example.in")
 pprint(rides)
 
+for current_time in range(max_time):
+    print('=== {} ==='.format(current_time))
+    for ride in rides:
+        for car in vehicles:
+            print('r{} c{}: {}'.format(ride.id, car.id, compute_reward(car, ride, current_time)))
