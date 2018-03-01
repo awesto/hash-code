@@ -92,7 +92,6 @@ if __name__ == '__main__':
     rides = parse_input_file(sys.argv[1])
 
     for current_time in range(max_time):
-        print('current time: {}\r'.format(current_time), file=sys.stderr)
         for car in vehicles:
             if car.occupied_until > current_time:
                 continue
