@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from collections import namedtuple
+import sys
 
 Pos = namedtuple('Pos', ['x', 'y'])
 Ride = namedtuple('Ride', ['id', 'start', 'finish', 'earliest', 'latest', 'distance'])
@@ -31,7 +32,7 @@ def parse_input_file(input_file):
     with open(input_file) as f:
         setup = f.readline().split(" ")
         field_size = Pos(int(setup[0]), int(setup[1]))
-        vehicles = [Car(i) for i in range(int(setup[3]))]
+        vehicles = [Car(i) for i in range(int(setup[2]))]
         ride_bonus = int(setup[4])
         max_time = int(setup[5])
 
@@ -78,20 +79,20 @@ def greedy_select_ride(car: Car, current_time: int) -> Ride:
         reward = compute_reward(car, ride, current_time)
         if reward == 0:
             continue
-        combinations.append((ride, car, reward))
-    combinations = sorted(combinations, key=lambda t: t[2], reverse=True)
-    return combinations[0][0]
+        combinations.append((reward, ride, car))
+    combinations.sort()
+    return combinations[-1][1]
 
 
-import sys
 if __name__ == '__main__':
 
-    if (len(sys.argv) < 2):
+    if len(sys.argv) < 2:
         print ("usage: ./main.py FILE")
         sys.exit(1)
     rides = parse_input_file(sys.argv[1])
 
     for current_time in range(max_time):
+        print('current time: {}\r'.format(current_time), file=sys.stderr)
         for car in vehicles:
             if car.occupied_until > current_time:
                 continue
@@ -103,7 +104,6 @@ if __name__ == '__main__':
             rides.remove(ride)
         if not rides:
             break
-
 
     for car in vehicles:
         print (len(car.rides), *[ride.id for ride in car.rides])
