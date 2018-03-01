@@ -8,9 +8,13 @@ class Car(object):
     def __init__(self, id):
         self.id = id
         self.current = Pos(0, 0)
-        self.destination = None
-        self.occupied = False
+        self.occupied_until = 0
 
+    def drive(self, ride, current_time):
+        dist_car_start = compute_distance(self.current, ride.start)
+        dist_start_dest = compute_distance(ride.start, ride.finish)
+        self.occupied_until = current_time + dist_car_start + dist_start_dest
+        self.current = ride.finish
 
 
 field_size = Pos(None, None)
@@ -47,8 +51,12 @@ def compute_distance(start, finish):
 
 def compute_reward (car, ride, current_time):
     # calculate what reward we'd get if we'd start driving there now
-
     dist_car_start = compute_distance (car.current, ride.start)
+
+    if current_time + dist_car_start < ride.earliest:
+        # don't pick up the rider too early
+        return 0
+
     dist_start_dest = compute_distance (ride.start, ride.finish)
 
     full_distance = dist_car_start + dist_start_dest
@@ -68,8 +76,25 @@ from pprint import pprint
 rides = parse_input_file("Dataset/a_example.in")
 pprint(rides)
 
-for current_time in range(max_time):
+def greedy_select_ride(current_time):
     print('=== {} ==='.format(current_time))
+    combinations = []
     for ride in rides:
         for car in vehicles:
-            print('r{} c{}: {}'.format(ride.id, car.id, compute_reward(car, ride, current_time)))
+            if car.occupied_until < current_time:
+                continue
+            reward = compute_reward(car, ride, current_time)
+            if reward == 0:
+                continue
+            combinations.append((ride, car, reward))
+            print('r{} c{}: {}'.format(ride.id, car.id, combinations[-1][2]))
+    combinations = sorted(combinations, key=lambda t: t[2], reverse=True)
+    print(combinations)
+    return combinations[0]
+
+
+for current_time in range(max_time):
+    ride, car, _ = greedy_select_ride(current_time)
+    car.drive(ride, current_time)
+
+
