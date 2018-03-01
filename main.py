@@ -4,8 +4,16 @@ from collections import namedtuple
 Pos = namedtuple('Pos', ['x', 'y'])
 Ride = namedtuple('Ride', ['start', 'finish', 'earliest', 'latest', 'distance'])
 
+class Car(object):
+    def __init__(self):
+        current = Pos(0, 0)
+        destination = None
+        occupied = False
+
+
+
 field_size = Pos(None, None)
-vehicles = None  # TODO: this  should represent the vehicle's position, etc.
+vehicles = []
 time_left = None
 ride_bonus = None
 
@@ -17,7 +25,7 @@ def parse_input_file(input_file):
     with open(input_file) as f:
         setup = f.readline().split(" ")
         field_size = Pos(int(setup[0]), int(setup[1]))
-        vehicles = [None] * int(setup[3])
+        vehicles = [Car()] * int(setup[3])
         ride_bonus = int(setup[4])
         time_left = int(setup[5])
 
@@ -38,8 +46,3 @@ from pprint import pprint
 rides = parse_input_file("Dataset/a_example.in")
 pprint(rides)
 
-
-print ("size=",field_size)
-print ("cars=",vehicles)
-print ("time=",time_left)
-print ("ride=",ride_bonus)
