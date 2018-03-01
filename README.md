@@ -4,3 +4,4 @@
 
  - `girst`
  - `johan`
+ - `emanuel`
