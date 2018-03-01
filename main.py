@@ -19,7 +19,7 @@ class Car(object):
     def drive(self, ride, current_time):
         dist_car_start = compute_distance(self.current, ride.start)
         dist_start_dest = compute_distance(ride.start, ride.finish)
-        self.occupied_until = current_time + dist_car_start + dist_start_dest - 1
+        self.occupied_until = current_time + dist_car_start + dist_start_dest
         self.current = ride.finish
         self.rides.append(ride)
 
