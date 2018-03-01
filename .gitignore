@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -103,3 +104,34 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+=======
+*.pyc
+.project
+.pydevproject
+.settings
+.tox/
+.cache
+.idea
+*.coverage
+*~
+private_settings.py
+build
+docs/_build
+dist
+*egg-info*
+htmlcov
+test-reports
+bin/
+include/
+lib/
+distribute*
+share/
+*.sqlite3
+*.swp
+.DS_store
+*coverage.xml
+OLD-out-of-date
+.tox
+node_modules/
+staticfiles/
+>>>>>>> 244cb1e9e2526e391bfe8c8be68da77eadae5941
