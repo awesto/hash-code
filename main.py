@@ -73,7 +73,6 @@ def compute_reward (car, ride, current_time):
     return reward
 
 def greedy_select_ride(car: Car, current_time: int) -> Ride:
-    print('=== {} ==='.format(current_time))
     combinations = []
     for ride in rides:
         reward = compute_reward(car, ride, current_time)
