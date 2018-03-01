@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+from collections import namedtuple
+
+Pos = namedtuple('Pos', ['x', 'y'])
+Ride = namedtuple('Ride', ['start', 'finish', 'earliest', 'latest'])
 
 def parse_input_file(input_file):
     rides = []
@@ -6,7 +10,10 @@ def parse_input_file(input_file):
         f.readline()
         for line in f:
             e = line.split(" ")
-            rides.append ( ((e[0],e[1]), (e[2], e[3]), (e[4], str.replace(e[5], "\n", ""))) )
+            start = Pos(e[0], e[1])
+            finish = Pos(e[2], e[3])
+            ride = Ride(start, finish, e[4], str.replace(e[5], "\n", ""))
+            rides.append(ride)
 
     return rides
 
