@@ -83,9 +83,13 @@ def greedy_select_ride(car: Car, current_time: int) -> Ride:
     return combinations[0][0]
 
 
+import sys
 if __name__ == '__main__':
 
-    rides = parse_input_file("Dataset/a_example.in")
+    if (len(sys.argv) < 2):
+        print ("usage: ./main.py FILE")
+        sys.exit(1)
+    rides = parse_input_file(sys.argv[1])
 
     for current_time in range(max_time):
         for car in vehicles:
