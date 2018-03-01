@@ -31,7 +31,7 @@ def parse_input_file(input_file):
     with open(input_file) as f:
         setup = f.readline().split(" ")
         field_size = Pos(int(setup[0]), int(setup[1]))
-        vehicles = [Car(i) for i in range(int(setup[3]))]
+        vehicles = [Car(i) for i in range(int(setup[2]))]
         ride_bonus = int(setup[4])
         max_time = int(setup[5])
 
@@ -83,7 +83,7 @@ def greedy_select_ride(car: Car, current_time: int) -> Ride:
     return combinations[0][0]
 
 
-import sys
+import sys, time
 if __name__ == '__main__':
 
     if (len(sys.argv) < 2):
@@ -92,6 +92,7 @@ if __name__ == '__main__':
     rides = parse_input_file(sys.argv[1])
 
     for current_time in range(max_time):
+        #print (time.clock(), current_time, file=sys.stderr)
         for car in vehicles:
             if car.occupied_until > current_time:
                 continue
