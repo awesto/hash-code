@@ -103,3 +103,6 @@ for current_time in range(max_time):
     if not rides:
         break
 
+
+for car in vehicles:
+    print (len(car.rides), *[ride.id for ride in car.rides])
