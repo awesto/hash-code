@@ -72,10 +72,6 @@ def compute_reward (car, ride, current_time):
 
     return reward
 
-from pprint import pprint
-rides = parse_input_file("Dataset/a_example.in")
-pprint(rides)
-
 def greedy_select_ride(car: Car, current_time: int) -> Ride:
     print('=== {} ==='.format(current_time))
     combinations = []
@@ -84,22 +80,24 @@ def greedy_select_ride(car: Car, current_time: int) -> Ride:
         if reward == 0:
             continue
         combinations.append((ride, car, reward))
-        print('r{} c{}: {}'.format(ride.id, car.id, combinations[-1][2]))
     combinations = sorted(combinations, key=lambda t: t[2], reverse=True)
-    print(combinations)
     return combinations[0][0]
 
 
-for current_time in range(max_time):
-    for car in vehicles:
-        if car.occupied_until > current_time:
-            continue
-        try:
-            ride = greedy_select_ride(car, current_time)
-        except IndexError:
-            continue
-        car.drive(ride, current_time)
-        rides.remove(ride)
-    if not rides:
-        break
+if __name__ == '__main__':
+
+    rides = parse_input_file("Dataset/a_example.in")
+
+    for current_time in range(max_time):
+        for car in vehicles:
+            if car.occupied_until > current_time:
+                continue
+            try:
+                ride = greedy_select_ride(car, current_time)
+            except IndexError:
+                continue
+            car.drive(ride, current_time)
+            rides.remove(ride)
+        if not rides:
+            break
 
