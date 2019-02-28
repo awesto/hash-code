@@ -69,9 +69,10 @@ if __name__ == '__main__':
     slides.extend(permute_verticals(verticals))
     slides_permutation = itertools.permutations(slides, len(slides))
     best_score, best_permutation = 0, []
-    for permutation in slides_permutation:
+    for counter, permutation in enumerate(slides_permutation):
         score = slides_score(permutation)
         if score > best_score:
+            print('Permutation: ', counter, score)
             best_permutation = permutation
             best_score = score
     render_permutation(best_permutation)
