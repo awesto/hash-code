@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from collections import namedtuple
+import random
 import sys
 
 Pos = namedtuple('Pos', ['x', 'y'])
@@ -20,7 +21,7 @@ class Car(object):
     def drive(self, ride, current_time):
         dist_car_start = compute_distance(self.current, ride.start)
         dist_start_dest = compute_distance(ride.start, ride.finish)
-        self.occupied_until = current_time + dist_car_start + dist_start_dest - 1
+        self.occupied_until = current_time + dist_car_start + dist_start_dest
         self.current = ride.finish
         self.rides.append(ride)
 
@@ -69,7 +70,7 @@ def compute_reward (car, ride, current_time):
 
     if current_time + dist_car_start == ride.earliest:
         # bonus if we pick up at exact time
-        reward += 2
+        reward += ride_bonus
 
     return reward
 
@@ -80,8 +81,8 @@ def greedy_select_ride(car: Car, current_time: int) -> Ride:
         if reward == 0:
             continue
         combinations.append((reward, ride, car))
-    combinations.sort()
-    return combinations[-1][1]
+    #combinations.sort()
+    return random.choice(combinations)[1]
 
 
 if __name__ == '__main__':
