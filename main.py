@@ -1,88 +1,63 @@
 #!/usr/bin/env python3
 from collections import namedtuple
+import itertools
+import functools
 import random
 import sys
 
-Pos = namedtuple('Pos', ['x', 'y'])
-Ride = namedtuple('Ride', ['id', 'start', 'finish', 'earliest', 'latest', 'distance'])
+Photo = namedtuple('Photo', ['id', 'tags'])
 
-field_size = Pos(None, None)
-vehicles = []
-max_time = None
-ride_bonus = None
-
-class Car(object):
-    def __init__(self, id):
-        self.id = id
-        self.current = Pos(0, 0)
-        self.occupied_until = 0
-        self.rides = []
-
-    def drive(self, ride, current_time):
-        dist_car_start = compute_distance(self.current, ride.start)
-        dist_start_dest = compute_distance(ride.start, ride.finish)
-        self.occupied_until = current_time + dist_car_start + dist_start_dest
-        self.current = ride.finish
-        self.rides.append(ride)
 
 def parse_input_file(input_file):
     global field_size, vehicles, max_time, ride_bonus
 
-    ride_index = 0
-    rides = []
-    with open(input_file) as f:
-        setup = f.readline().split(" ")
-        field_size = Pos(int(setup[0]), int(setup[1]))
-        vehicles = [Car(i) for i in range(int(setup[2]))]
-        ride_bonus = int(setup[4])
-        max_time = int(setup[5])
-
-        for line in f:
-            e = line.split(" ")
-            start = Pos(int(e[0]), int(e[1]))
-            finish = Pos(int(e[2]), int(e[3]))
-            ride = Ride(ride_index, start, finish, int(e[4]), int(str.replace(e[5], "\n", "")), compute_distance(start, finish))
-            rides.append(ride)
-            ride_index += 1
-
-    return rides
-
-def compute_distance(start, finish):
-    return abs(start.x - finish.x) + abs(start.y - finish.y)
+    verticals, horizontals = [], []
+    with open(input_file, 'r') as fh:
+        num_photos = int(fh.readline())
+        for id in range(0, num_photos):
+            line = fh.readline()
+            tags = line.rstrip('\n').split(' ')
+            hv = tags.pop(0)
+            tags.pop(0)
+            photo = Photo(str(id), set(tags))
+            if hv == 'V':
+                verticals.append(photo)
+            else:
+                horizontals.append(photo)
+    return verticals, horizontals
 
 
-def compute_reward (car, ride, current_time):
-    # calculate what reward we'd get if we'd start driving there now
-    dist_car_start = compute_distance (car.current, ride.start)
+def pair_score(left, right):
+    common = len(left.tags.intersection(right.tags))
+    leftdiff = len(left.tags - right.tags)
+    rightdiff = len(right.tags - left.tags)
+    return min(common, leftdiff, rightdiff)
 
-    if current_time + dist_car_start < ride.earliest:
-        # don't pick up the rider too early
-        return 0
 
-    dist_start_dest = compute_distance (ride.start, ride.finish)
+def permute_verticals(verticals):
+    """Create a random list slides with vertical pairs"""
+    result = []
+    permutations = itertools.combinations(verticals, 2)
+    for left, right in permutations:
+        slide = Photo('{} {}'.format(left.id, right.id), left.tags.union(right.tags))
+        result.append(slide)
+    return result
 
-    full_distance = dist_car_start + dist_start_dest
-    if full_distance > ride.latest - current_time:
-        # this ride can not be fulfilled in time => no reward
-        return 0
 
-    reward = dist_start_dest
+def slides_score(slides):
+    score = 0
+    left = slides[0]
+    for right in slides[1:]:
+        score += pair_score(left, right)
+        left = right
+    return score
 
-    if current_time + dist_car_start == ride.earliest:
-        # bonus if we pick up at exact time
-        reward += ride_bonus
 
-    return reward
-
-def greedy_select_ride(car: Car, current_time: int) -> Ride:
-    combinations = []
-    for ride in rides:
-        reward = compute_reward(car, ride, current_time)
-        if reward == 0:
-            continue
-        combinations.append((reward, ride, car))
-    #combinations.sort()
-    return random.choice(combinations)[1]
+def render_permutation(permutation):
+    with open('output.txt', 'w') as fh:
+        fh.write('{}\n'.format(len(permutation)))
+        for slide in permutation:
+            fh.write(slide.id + '\n')
 
 
 if __name__ == '__main__':
@@ -90,20 +65,13 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print ("usage: ./main.py FILE")
         sys.exit(1)
-    rides = parse_input_file(sys.argv[1])
-
-    for current_time in range(max_time):
-        for car in vehicles:
-            if car.occupied_until > current_time:
-                continue
-            try:
-                ride = greedy_select_ride(car, current_time)
-            except IndexError:
-                continue
-            car.drive(ride, current_time)
-            rides.remove(ride)
-        if not rides:
-            break
-
-    for car in vehicles:
-        print (len(car.rides), *[ride.id for ride in car.rides])
+    verticals, slides = parse_input_file(sys.argv[1])
+    slides.extend(permute_verticals(verticals))
+    slides_permutation = itertools.permutations(slides, len(slides))
+    best_score, best_permutation = 0, []
+    for permutation in slides_permutation:
+        score = slides_score(permutation)
+        if score > best_score:
+            best_permutation = permutation
+            best_score = score
+    render_permutation(best_permutation)
