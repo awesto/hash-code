@@ -36,9 +36,11 @@ def pair_score(left, right):
 
 def permute_verticals(verticals):
     """Create a random list slides with vertical pairs"""
+    shuffled = verticals[:]
+    random.shuffle(shuffled)
+    half = int(len(shuffled) / 2)
     result = []
-    permutations = itertools.combinations(verticals, 2)
-    for left, right in permutations:
+    for left, right in zip(shuffled[:half], shuffled[half:]):
         slide = Photo('{} {}'.format(left.id, right.id), left.tags.union(right.tags))
         result.append(slide)
     return result
