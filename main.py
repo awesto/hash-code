@@ -67,15 +67,17 @@ if __name__ == '__main__':
     if len(sys.argv) < 3:
         print ("usage: ./main.py IN_FILE OUT_FILE")
         sys.exit(1)
-    verticals, slides = parse_input_file(sys.argv[1])
-    slides.extend(permute_verticals(verticals))
-    slides_permutation = itertools.permutations(slides, len(slides))
+    verticals, horizontals = parse_input_file(sys.argv[1])
+
     best_score, best_permutation = 0, []
-    for counter, permutation in enumerate(slides_permutation):
-        score = slides_score(permutation)
+    for counter in range(10000):
+        slides = horizontals[:]
+        slides.extend(permute_verticals(verticals))
+        random.shuffle(slides)
+        score = slides_score(slides)
         if score > best_score:
             print('Permutation: ', counter, score)
-            best_permutation = permutation
+            best_permutation = slides
             best_score = score
             render_permutation(best_permutation, sys.argv[2] + '-intermediate.txt')
     render_permutation(best_permutation, sys.argv[2])
