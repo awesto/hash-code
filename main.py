@@ -53,8 +53,8 @@ def slides_score(slides):
     return score
 
 
-def render_permutation(permutation):
-    with open('output.txt', 'w') as fh:
+def render_permutation(permutation, filename):
+    with open(filename, 'w') as fh:
         fh.write('{}\n'.format(len(permutation)))
         for slide in permutation:
             fh.write(slide.id + '\n')
@@ -62,8 +62,8 @@ def render_permutation(permutation):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
-        print ("usage: ./main.py FILE")
+    if len(sys.argv) < 3:
+        print ("usage: ./main.py IN_FILE OUT_FILE")
         sys.exit(1)
     verticals, slides = parse_input_file(sys.argv[1])
     slides.extend(permute_verticals(verticals))
@@ -75,4 +75,5 @@ if __name__ == '__main__':
             print('Permutation: ', counter, score)
             best_permutation = permutation
             best_score = score
-    render_permutation(best_permutation)
+            render_permutation(best_permutation, sys.argv[2] + '-intermediate.txt')
+    render_permutation(best_permutation, sys.argv[2])
